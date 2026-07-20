@@ -31,22 +31,25 @@
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-  body {
+  html, body {
     font-family: 'Noto Sans SC', sans-serif;
     background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid), var(--bg-light));
-    min-height: 100vh;
-    min-height: 100dvh;
+    width:100%; height:100%; overflow:hidden;
     color: var(--text);
-    overflow-x: hidden;
-    user-select: none;
-    -webkit-user-select: none;
+    user-select: none; -webkit-user-select: none;
     overscroll-behavior: none;
+  }
+
+  /* ===== App wrapper: flex column fills screen ===== */
+  .app-root {
+    display:flex; flex-direction:column; height:100%; width:100%;
+    position:relative; z-index:1;
   }
 
   /* ===== Floating music notes background ===== */
   .bg-notes { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
   .bg-note {
-    position:absolute; font-size:24px; opacity:0.05; color:#fff;
+    position:absolute; font-size:24px; opacity:0.04; color:#fff;
     animation: floatNote linear infinite;
   }
   @keyframes floatNote {
@@ -56,39 +59,36 @@
 
   /* ===== Header ===== */
   header {
-    text-align:center; padding: calc(12px + var(--safe-top)) 16px 8px;
+    text-align:center; padding: calc(8px + var(--safe-top)) 12px 4px;
     position:relative; z-index:1; display:flex; align-items:center; justify-content:center; gap:8px;
+    flex-shrink:0;
   }
   header h1 {
-    font-size:22px; font-weight:700;
+    font-size:18px; font-weight:700;
     background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
     -webkit-background-clip:text; -webkit-text-fill-color:transparent;
     background-clip:text; letter-spacing:2px;
   }
   .help-btn {
-    position:absolute; right:16px; top: calc(12px + var(--safe-top));
-    width:32px; height:32px; border-radius:50%; border:none;
-    background:var(--card-bg); color:var(--text); font-size:16px;
+    position:absolute; right:12px; top: calc(8px + var(--safe-top));
+    width:28px; height:28px; border-radius:50%; border:none;
+    background:var(--card-bg); color:var(--text); font-size:14px;
     cursor:pointer; display:flex; align-items:center; justify-content:center;
     border:1px solid var(--card-border); z-index:2;
   }
   .help-btn:active { background:rgba(255,255,255,0.2); }
 
-  /* ===== Layout ===== */
-  .app-container {
-    max-width:480px; margin:0 auto; padding:4px 12px calc(12px + var(--safe-bottom));
-    position:relative; z-index:1;
-  }
-
-  /* ===== Song Selector ===== */
+  /* ===== Song Selector: horizontal scroll ===== */
   .song-panel {
-    display:grid; grid-template-columns:repeat(4, 1fr);
-    gap:8px; margin-bottom:10px;
+    display:flex; gap:6px; overflow-x:auto; flex-shrink:0;
+    padding:4px 12px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
   }
+  .song-panel::-webkit-scrollbar { display:none; }
   .song-card {
+    flex-shrink:0; min-width:72px;
     background: var(--card-bg); border:1px solid var(--card-border);
-    border-radius:12px; padding:10px 4px; cursor:pointer;
-    transition: all 0.3s; text-align:center; position:relative; overflow:hidden;
+    border-radius:10px; padding:8px 6px; cursor:pointer;
+    transition: all 0.2s; text-align:center; position:relative; overflow:hidden;
   }
   .song-card::before {
     content:''; position:absolute; inset:0;
@@ -96,89 +96,102 @@
     opacity:0; transition:opacity 0.3s;
   }
   .song-card:hover::before, .song-card.active::before { opacity:1; }
-  .song-card.active { border-color: var(--accent); box-shadow:0 0 16px rgba(255,107,107,0.25); }
-  .song-card .emoji { font-size:24px; display:block; margin-bottom:2px; position:relative; z-index:1; }
-  .song-card .name { font-size:11px; font-weight:500; position:relative; z-index:1; }
-  .song-card .diff {
-    font-size:9px; color:var(--accent2); margin-top:1px; position:relative; z-index:1;
+  .song-card.active { border-color: var(--accent); box-shadow:0 0 12px rgba(255,107,107,0.25); }
+  .song-card .emoji { font-size:20px; display:block; margin-bottom:1px; position:relative; z-index:1; }
+  .song-card .name { font-size:10px; font-weight:500; position:relative; z-index:1; }
+  .song-card .diff { font-size:8px; color:var(--accent2); margin-top:1px; position:relative; z-index:1; }
+
+  /* ===== Main content area: flexible ===== */
+  .main-area {
+    flex:1; min-height:0; display:flex; flex-direction:column;
+    padding:0 12px; overflow:hidden;
   }
 
-  /* ===== Staff / Sheet Music Display ===== */
+  /* ===== Sheet Music Display ===== */
   .sheet-display {
     background: var(--card-bg); border:1px solid var(--card-border);
-    border-radius:14px; padding:12px; margin-bottom:10px; min-height:130px;
-    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border-radius:12px; padding:10px; margin-bottom:6px;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    flex-shrink:0;
   }
   .sheet-header {
-    display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;
   }
-  .sheet-title { font-size:14px; font-weight:700; }
+  .sheet-title { font-size:13px; font-weight:700; }
   .sheet-info { font-size:10px; color:var(--text-muted); }
 
   .staff-container {
-    position:relative; overflow-x:auto; padding:6px 0;
-    scrollbar-width:none;
+    position:relative; overflow-x:auto; padding:4px 0;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch;
   }
   .staff-container::-webkit-scrollbar { display:none; }
 
-  .staff { position:relative; height:100px; min-width:100%; }
+  .staff { position:relative; height:90px; min-width:100%; }
   .staff-line {
     position:absolute; left:0; right:0; height:1px;
     background:rgba(255,255,255,0.15);
   }
-  .staff-line:nth-child(1) { top:16px; }
-  .staff-line:nth-child(2) { top:32px; }
-  .staff-line:nth-child(3) { top:48px; }
-  .staff-line:nth-child(4) { top:64px; }
-  .staff-line:nth-child(5) { top:80px; }
+  .staff-line:nth-child(1) { top:14px; }
+  .staff-line:nth-child(2) { top:28px; }
+  .staff-line:nth-child(3) { top:42px; }
+  .staff-line:nth-child(4) { top:56px; }
+  .staff-line:nth-child(5) { top:70px; }
 
   .note-item {
     position:absolute; display:flex; flex-direction:column; align-items:center;
-    transition: all 0.3s; cursor:pointer;
+    transition: all 0.25s; cursor:pointer;
   }
   .note-head {
-    width:16px; height:11px; border-radius:50%;
+    width:14px; height:10px; border-radius:50%;
     background:rgba(255,255,255,0.5); border:1.5px solid rgba(255,255,255,0.7);
-    transition: all 0.25s;
+    transition: all 0.2s;
   }
   .note-item.active .note-head {
     background:var(--accent); border-color:var(--accent);
-    box-shadow:0 0 12px rgba(255,107,107,0.7);
+    box-shadow:0 0 10px rgba(255,107,107,0.7);
     transform:scale(1.3);
   }
   .note-item.played .note-head {
-    background:rgba(255,107,107,0.4); border-color:rgba(255,107,107,0.6);
+    background:rgba(255,107,107,0.3); border-color:rgba(255,107,107,0.5);
+  }
+  .note-item.manual .note-head {
+    background:var(--accent3); border-color:var(--accent3);
+    box-shadow:0 0 10px rgba(72,219,251,0.6);
+    transform:scale(1.25);
   }
   .note-stem {
-    width:1.5px; height:24px; background:rgba(255,255,255,0.5);
-    position:absolute; right:-1px; top:-22px;
+    width:1.5px; height:20px; background:rgba(255,255,255,0.5);
+    position:absolute; right:-1px; top:-18px;
   }
   .note-label {
-    font-size:8px; color:var(--text-muted); margin-top:2px; white-space:nowrap;
+    font-size:7px; color:var(--text-muted); margin-top:2px; white-space:nowrap;
   }
   .note-item.active .note-label { color:var(--accent); font-weight:700; }
+  .note-item.manual .note-label { color:var(--accent3); }
   .note-lyric {
-    font-size:9px; color:var(--accent2); margin-top:1px; position:absolute;
-    bottom:-14px; white-space:nowrap;
+    font-size:8px; color:var(--accent2); margin-top:1px; position:absolute;
+    bottom:-12px; white-space:nowrap;
   }
 
   /* ===== Current Note Display ===== */
   .now-playing {
-    text-align:center; margin-bottom:10px; min-height:42px;
-    display:flex; align-items:center; justify-content:center; gap:10px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    flex-shrink:0; padding:2px 0;
+    background:rgba(255,255,255,0.03); border-radius:10px; margin:0 12px 4px;
   }
   .now-note {
-    font-size:28px; font-weight:700; color:var(--accent);
-    text-shadow:0 0 16px rgba(255,107,107,0.5);
-    min-width:48px; transition:all 0.2s;
+    font-size:24px; font-weight:700; color:var(--accent);
+    text-shadow:0 0 12px rgba(255,107,107,0.5);
+    min-width:40px; text-align:center; transition:all 0.15s;
   }
-  .now-lyric { font-size:16px; color:var(--accent2); }
-  .now-freq { font-size:10px; color:var(--text-muted); }
+  .now-lyric { font-size:14px; color:var(--accent2); }
+  .now-freq { font-size:9px; color:var(--text-muted); }
 
   /* ===== Progress Bar ===== */
   .progress-bar {
     width:100%; height:3px; background:rgba(255,255,255,0.1);
-    border-radius:2px; margin-bottom:10px; overflow:hidden; cursor:pointer;
+    border-radius:2px; margin-bottom:4px; overflow:hidden; cursor:pointer;
+    flex-shrink:0;
   }
   .progress-fill {
     height:100%; background:linear-gradient(90deg, var(--accent), var(--accent2));
@@ -187,341 +200,286 @@
 
   /* ===== Controls ===== */
   .controls {
-    display:flex; align-items:center; justify-content:center; gap:10px;
-    margin-bottom:10px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin-bottom:4px; flex-shrink:0;
   }
   .ctrl-btn {
-    width:40px; height:40px; border-radius:50%; border:none;
-    background:var(--card-bg); color:#fff; font-size:16px;
+    width:36px; height:36px; border-radius:50%; border:none;
+    background:var(--card-bg); color:#fff; font-size:14px;
     cursor:pointer; display:flex; align-items:center; justify-content:center;
-    border:1px solid var(--card-border); transition:all 0.2s;
+    border:1px solid var(--card-border); transition:all 0.15s;
   }
-  .ctrl-btn:active { background:rgba(255,255,255,0.2); transform:scale(0.95); }
+  .ctrl-btn:active { background:rgba(255,255,255,0.2); transform:scale(0.92); }
   .ctrl-btn.play-btn {
-    width:52px; height:52px; font-size:20px;
+    width:46px; height:46px; font-size:18px;
     background:linear-gradient(135deg, var(--accent), #ee5a24);
-    border:none; box-shadow:0 4px 16px rgba(255,107,107,0.4);
+    border:none; box-shadow:0 3px 12px rgba(255,107,107,0.4);
   }
-  .ctrl-btn.play-btn:active { box-shadow:0 2px 10px rgba(255,107,107,0.3); }
+  .ctrl-btn.play-btn:active { box-shadow:0 2px 8px rgba(255,107,107,0.3); }
 
   .tempo-control {
-    display:flex; align-items:center; gap:6px; color:var(--text-muted); font-size:11px;
+    display:flex; align-items:center; gap:4px; color:var(--text-muted); font-size:10px;
   }
   .tempo-slider {
-    -webkit-appearance:none; width:80px; height:3px;
+    -webkit-appearance:none; width:70px; height:3px;
     background:rgba(255,255,255,0.2); border-radius:2px; outline:none;
   }
   .tempo-slider::-webkit-slider-thumb {
-    -webkit-appearance:none; width:14px; height:14px;
+    -webkit-appearance:none; width:12px; height:12px;
     background:var(--accent3); border-radius:50%; cursor:pointer;
   }
-  .tempo-val { color:var(--accent3); font-weight:700; min-width:28px; text-align:center; font-size:12px; }
+  .tempo-val { color:var(--accent3); font-weight:700; min-width:24px; text-align:center; font-size:11px; }
 
   /* ===== Piano Keyboard ===== */
   .piano-wrapper {
     background:linear-gradient(to bottom, rgba(20,20,40,0.9), rgba(10,10,30,0.95));
-    border-radius:0 0 16px 16px; padding:10px 4px 12px;
-    border:1px solid var(--card-border); border-top:none;
+    border-radius:12px 12px 0 0; padding:8px 4px 10px;
+    border:1px solid var(--card-border); border-bottom:none;
     overflow-x:auto; -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
+    scrollbar-width:none; flex-shrink:0;
   }
   .piano-wrapper::-webkit-scrollbar { display:none; }
   .piano {
-    position:relative; display:flex; height:140px; min-width:max-content;
+    position:relative; display:flex; height:120px; min-width:max-content;
   }
   .key {
     position:relative; cursor:pointer; transition: all 0.06s;
     display:flex; align-items:flex-end; justify-content:center;
-    padding-bottom:6px; font-size:9px; color:rgba(0,0,0,0.5);
+    padding-bottom:4px; font-size:8px; color:rgba(0,0,0,0.5);
     font-weight:500; flex-shrink:0;
   }
   .key.white {
-    width:36px; height:100%;
-    background:var(--white-key); border-radius:0 0 5px 5px;
+    width:34px; height:100%;
+    background:var(--white-key); border-radius:0 0 4px 4px;
     border:1px solid #ccc; border-top:none; z-index:1;
-    box-shadow:0 3px 5px rgba(0,0,0,0.3);
+    box-shadow:0 2px 4px rgba(0,0,0,0.3);
   }
   .key.white:active, .key.white.active {
     background:var(--white-key-active);
-    box-shadow:0 2px 3px rgba(0,0,0,0.2), inset 0 -2px 4px rgba(255,107,107,0.3);
+    box-shadow:0 1px 2px rgba(0,0,0,0.2), inset 0 -2px 3px rgba(255,107,107,0.3);
     transform:translateY(2px);
   }
   .key.black {
-    width:22px; height:58%;
+    width:20px; height:58%;
     background:var(--black-key); border-radius:0 0 3px 3px;
     position:absolute; top:0; z-index:2;
-    box-shadow:0 3px 6px rgba(0,0,0,0.5);
-    color:rgba(255,255,255,0.4); font-size:7px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.5);
+    color:rgba(255,255,255,0.4); font-size:6px;
   }
   .key.black:active, .key.black.active {
     background:var(--black-key-active);
-    box-shadow:0 2px 3px rgba(0,0,0,0.3), inset 0 -2px 4px rgba(255,107,107,0.4);
+    box-shadow:0 1px 2px rgba(0,0,0,0.3), inset 0 -2px 3px rgba(255,107,107,0.4);
     transform:translateY(2px);
   }
   .key-label { pointer-events:none; }
 
-  /* ===== Tutorial / Onboarding Overlay ===== */
+  /* ===== Floating note bubble (manual play feedback) ===== */
+  .note-bubble {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
+    background:linear-gradient(135deg, rgba(255,107,107,0.9), rgba(72,219,251,0.9));
+    color:#fff; font-size:48px; font-weight:700; padding:16px 32px; border-radius:16px;
+    pointer-events:none; z-index:900; transition:transform 0.15s ease-out, opacity 0.3s;
+    opacity:0; backdrop-filter:blur(8px);
+    text-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  .note-bubble.show { transform:translate(-50%,-50%) scale(1); opacity:1; }
+  .note-bubble.fading { transform:translate(-50%,-50%) scale(1.1); opacity:0; }
+
+  /* ===== Tutorial Overlay ===== */
   .tutorial-overlay {
     position:fixed; inset:0; z-index:1000;
     background:rgba(15,12,41,0.97);
     display:none; flex-direction:column; align-items:center; justify-content:center;
-    padding:24px; text-align:center;
+    padding:20px; text-align:center;
   }
   .tutorial-overlay.show { display:flex; }
-  .tutorial-content {
-    max-width:360px; width:100%; animation: slideUp 0.4s ease-out;
-  }
+  .tutorial-content { max-width:340px; width:100%; animation: slideUp 0.4s ease-out; }
   @keyframes slideUp { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
-
   .tutorial-step { display:none; }
   .tutorial-step.active { display:block; }
-
-  .tutorial-emoji { font-size:56px; margin-bottom:12px; display:block; }
-  .tutorial-title { font-size:20px; font-weight:700; margin-bottom:8px; }
-  .tutorial-desc { font-size:14px; color:var(--text-muted); line-height:1.7; margin-bottom:20px; }
+  .tutorial-emoji { font-size:48px; margin-bottom:10px; display:block; }
+  .tutorial-title { font-size:18px; font-weight:700; margin-bottom:6px; }
+  .tutorial-desc { font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px; }
   .tutorial-visual {
     background:var(--card-bg); border:1px solid var(--card-border);
-    border-radius:12px; padding:16px; margin-bottom:20px;
-    display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
+    border-radius:10px; padding:12px; margin-bottom:16px;
+    display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap;
   }
   .demo-key {
-    width:32px; height:50px; background:var(--white-key);
-    border-radius:0 0 4px 4px; border:1px solid #ccc; border-top:none;
-    display:flex; align-items:flex-end; justify-content:center; padding-bottom:4px;
-    font-size:8px; color:#666;
+    width:28px; height:40px; background:var(--white-key);
+    border-radius:0 0 3px 3px; border:1px solid #ccc; border-top:none;
+    display:flex; align-items:flex-end; justify-content:center; padding-bottom:3px;
+    font-size:7px; color:#666;
   }
-  .demo-key.black { width:18px; height:28px; background:var(--black-key); margin-top:0; color:rgba(255,255,255,0.5); }
-  .demo-key.highlight { background:var(--white-key-active); box-shadow:0 0 12px rgba(255,107,107,0.5); }
-  .demo-key.black.highlight { background:var(--black-key-active); }
-
-  .tutorial-dots { display:flex; gap:6px; justify-content:center; margin-bottom:16px; }
-  .dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.2); transition:all 0.3s; }
-  .dot.active { background:var(--accent); box-shadow:0 0 8px rgba(255,107,107,0.5); }
-
+  .demo-key.black { width:16px; height:24px; background:var(--black-key); color:rgba(255,255,255,0.5); }
+  .demo-key.highlight { background:var(--white-key-active); box-shadow:0 0 8px rgba(255,107,107,0.5); }
+  .tutorial-dots { display:flex; gap:5px; justify-content:center; margin-bottom:12px; }
+  .dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.2); transition:all 0.3s; }
+  .dot.active { background:var(--accent); box-shadow:0 0 6px rgba(255,107,107,0.5); }
   .tutorial-btn {
-    width:100%; padding:14px; border:none; border-radius:12px;
+    width:100%; padding:12px; border:none; border-radius:10px;
     background:linear-gradient(135deg, var(--accent), #ee5a24);
-    color:#fff; font-size:15px; font-weight:700; cursor:pointer;
-    box-shadow:0 4px 16px rgba(255,107,107,0.3);
+    color:#fff; font-size:14px; font-weight:700; cursor:pointer;
+    box-shadow:0 3px 12px rgba(255,107,107,0.3);
     transition:all 0.2s; font-family:inherit;
   }
-  .tutorial-btn:active { transform:scale(0.97); box-shadow:0 2px 10px rgba(255,107,107,0.2); }
-  .tutorial-btn.secondary {
-    background:transparent; border:1px solid var(--card-border);
-    box-shadow:none; color:var(--text-muted); margin-top:8px;
-  }
-  .tutorial-btn.secondary:active { background:rgba(255,255,255,0.05); }
+  .tutorial-btn:active { transform:scale(0.97); }
+  .skip-link { margin-top:10px; color:var(--text-muted); font-size:11px; background:none; border:none; cursor:pointer; text-decoration:underline; font-family:inherit; }
 
-  .skip-link {
-    margin-top:12px; color:var(--text-muted); font-size:12px;
-    background:none; border:none; cursor:pointer; text-decoration:underline;
-    font-family:inherit;
-  }
-
-  /* ===== Toast / Notification ===== */
+  /* ===== Toast ===== */
   .toast {
-    position:fixed; bottom: calc(20px + var(--safe-bottom)); left:50%; transform:translateX(-50%) translateY(100px);
+    position:fixed; bottom: calc(16px + var(--safe-bottom)); left:50%; transform:translateX(-50%) translateY(100px);
     background:rgba(30,30,60,0.95); border:1px solid var(--card-border);
-    padding:10px 20px; border-radius:24px; font-size:13px; color:var(--text);
+    padding:8px 16px; border-radius:20px; font-size:12px; color:var(--text);
     z-index:999; opacity:0; transition:all 0.3s; pointer-events:none;
     backdrop-filter:blur(10px); white-space:nowrap;
   }
   .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
 
-  /* ===== Animations ===== */
-  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
-  @keyframes slideIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
-  .slide-in { animation: slideIn 0.3s ease-out; }
+  /* ===== Landscape / Fullscreen ===== */
+  @media (orientation: landscape) and (min-width: 500px) {
+    .app-root { flex-direction:row; }
+    header {
+      position:absolute; top:0; left:0; right:0; padding: 2px 8px;
+      justify-content:flex-start;
+    }
+    header h1 { font-size:14px; }
+    .help-btn { position:static; width:24px; height:24px; font-size:12px; margin-left:auto; }
+    .song-panel { position:absolute; top:32px; left:0; right:0; padding:2px 8px; }
+    .song-card { min-width:64px; padding:4px 4px; }
+    .song-card .emoji { font-size:16px; }
+    .song-card .name { font-size:9px; }
+    .main-area {
+      flex-direction:row; padding:40px 8px 8px; gap:8px;
+    }
+    .left-col {
+      flex:1; display:flex; flex-direction:column; min-width:0;
+    }
+    .right-col {
+      flex:0 0 auto; display:flex; flex-direction:column; justify-content:flex-end;
+    }
+    .sheet-display { margin-bottom:4px; flex:1; min-height:0; display:flex; flex-direction:column; }
+    .staff-container { flex:1; min-height:0; }
+    .staff { height:100%; }
+    .now-playing { margin:0 0 4px; }
+    .piano-wrapper { height:auto; padding:6px 4px 8px; border-radius:10px; }
+    .piano { height:140px; }
+  }
 
-  /* Small screen adjustments */
   @media (max-width:360px) {
-    .song-panel { grid-template-columns:repeat(4, 1fr); gap:6px; }
-    .song-card { padding:8px 2px; }
-    .song-card .emoji { font-size:20px; }
-    .song-card .name { font-size:10px; }
-    .piano { height:120px; }
-    .key.white { width:32px; }
-    .key.black { width:20px; }
-    .now-note { font-size:24px; }
-    .ctrl-btn { width:36px; height:36px; font-size:14px; }
-    .ctrl-btn.play-btn { width:44px; height:44px; font-size:18px; }
+    .piano { height:100px; }
+    .key.white { width:30px; }
+    .key.black { width:18px; }
+    .now-note { font-size:20px; }
+    .ctrl-btn { width:32px; height:32px; font-size:12px; }
+    .ctrl-btn.play-btn { width:40px; height:40px; font-size:16px; }
   }
 </style>
 </head>
 <body>
 
-<!-- Floating background notes -->
 <div class="bg-notes" id="bgNotes"></div>
 
-<!-- ===== Tutorial / Onboarding Overlay ===== -->
+<!-- ===== Tutorial Overlay ===== -->
 <div class="tutorial-overlay" id="tutorialOverlay">
   <div class="tutorial-content">
-
-    <!-- Step 1: Welcome -->
     <div class="tutorial-step active" data-step="0">
       <span class="tutorial-emoji">🎹</span>
       <div class="tutorial-title">欢迎来到音乐钢琴</div>
-      <div class="tutorial-desc">
-        这是一个可以在手机上弹奏钢琴、学习曲谱的音乐 APP。<br>
-        内置 8 首经典曲目，支持自动演奏和自由弹奏。
-      </div>
-      <div class="tutorial-visual">
-        <span style="font-size:32px;">🎵 🎶 🎼</span>
-      </div>
+      <div class="tutorial-desc">内置 20+ 首经典曲目，支持自动演奏和自由弹奏。<br>五线谱实时同步高亮显示当前音符。</div>
+      <div class="tutorial-visual"><span style="font-size:28px;">🎵 🎶 🎼</span></div>
       <button class="tutorial-btn" onclick="nextTutorial()">开始了解玩法</button>
-      <button class="skip-link" onclick="skipTutorial()">跳过，直接进入</button>
+      <button class="skip-link" onclick="skipTutorial()">跳过</button>
     </div>
-
-    <!-- Step 2: Play Keys -->
     <div class="tutorial-step" data-step="1">
       <span class="tutorial-emoji">👆</span>
       <div class="tutorial-title">点击琴键弹奏</div>
-      <div class="tutorial-desc">
-        点击下方钢琴键盘的白键和黑键，即可发出对应的音符。<br>
-        触摸时琴键会亮起，松开后自动复位。
-      </div>
+      <div class="tutorial-desc">点击下方钢琴键盘即可发声。<br>弹奏时五线谱上对应的音符会同步亮起蓝色高亮。</div>
       <div class="tutorial-visual">
-        <div class="demo-key">Do</div>
-        <div class="demo-key black">#</div>
-        <div class="demo-key">Re</div>
-        <div class="demo-key black">#</div>
-        <div class="demo-key highlight">Mi</div>
+        <div class="demo-key">Do</div><div class="demo-key black">#</div><div class="demo-key">Re</div><div class="demo-key highlight">Mi</div>
       </div>
       <button class="tutorial-btn" onclick="nextTutorial()">下一步</button>
     </div>
-
-    <!-- Step 3: Song & Sheet Music -->
     <div class="tutorial-step" data-step="2">
       <span class="tutorial-emoji">📜</span>
       <div class="tutorial-title">选择曲谱自动演奏</div>
-      <div class="tutorial-desc">
-        点击上方的歌曲卡片，选择你想听的曲子。<br>
-        五线谱会实时展示当前演奏的音符位置，音符会发光高亮。
-      </div>
-      <div class="tutorial-visual" style="flex-direction:column; gap:6px;">
-        <div style="display:flex; gap:6px;">
-          <div style="padding:6px 10px; background:rgba(255,107,107,0.2); border-radius:8px; border:1px solid rgba(255,107,107,0.4); font-size:12px;">⭐ 小星星</div>
-          <div style="padding:6px 10px; background:var(--card-bg); border-radius:8px; border:1px solid var(--card-border); font-size:12px;">🎶 欢乐颂</div>
-        </div>
-        <div style="font-size:11px; color:var(--text-muted);">点击卡片即可切换曲目</div>
-      </div>
+      <div class="tutorial-desc">点击上方曲谱卡片切换曲目。<br>点击播放按钮自动演奏，五线谱会实时滚动高亮。</div>
       <button class="tutorial-btn" onclick="nextTutorial()">下一步</button>
     </div>
-
-    <!-- Step 4: Playback Controls -->
     <div class="tutorial-step" data-step="3">
       <span class="tutorial-emoji">▶️</span>
       <div class="tutorial-title">播放控制</div>
-      <div class="tutorial-desc">
-        点击大圆形播放按钮开始自动演奏。<br>
-        支持暂停、停止、循环播放，还可以拖动速度滑块调节快慢。
-      </div>
-      <div class="tutorial-visual" style="gap:12px;">
-        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#ee5a24);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(255,107,107,0.4);">▶</div>
-        <div style="font-size:20px;">⏹</div>
-        <div style="font-size:20px;">🔁</div>
-      </div>
-      <button class="tutorial-btn" onclick="nextTutorial()">下一步</button>
-    </div>
-
-    <!-- Step 5: Progress Seek -->
-    <div class="tutorial-step" data-step="4">
-      <span class="tutorial-emoji">⏱️</span>
-      <div class="tutorial-title">进度条跳转</div>
-      <div class="tutorial-desc">
-        点击进度条任意位置，可以跳转到曲子的对应位置。<br>
-        方便你反复练习某一段旋律。
-      </div>
-      <div class="tutorial-visual">
-        <div style="width:100%;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;position:relative;">
-          <div style="position:absolute;left:40%;width:30%;height:100%;background:linear-gradient(90deg,#ff6b6b,#feca57);border-radius:2px;"></div>
-        </div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">点击进度条即可跳转</div>
-      </div>
-      <button class="tutorial-btn" onclick="nextTutorial()">下一步</button>
-    </div>
-
-    <!-- Step 6: Done -->
-    <div class="tutorial-step" data-step="5">
-      <span class="tutorial-emoji">🎉</span>
-      <div class="tutorial-title">准备好了吗？</div>
-      <div class="tutorial-desc">
-        随时可以点击右上角 ❓ 按钮重新查看本教程。<br>
-        祝你弹奏愉快！
-      </div>
-      <div class="tutorial-visual">
-        <span style="font-size:40px;">🎹 🎵 🌟</span>
-      </div>
+      <div class="tutorial-desc">支持播放/暂停/停止/循环。<br>速度滑块可任意调节快慢，点击进度条可跳转位置。</div>
       <button class="tutorial-btn" onclick="finishTutorial()">开始体验</button>
     </div>
-
     <div class="tutorial-dots" id="tutorialDots">
-      <div class="dot active"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
+      <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
     </div>
   </div>
 </div>
 
-<!-- ===== Main App ===== -->
-<header>
-  <h1>♪ 音乐钢琴 ♪</h1>
-  <button class="help-btn" onclick="showTutorial()" title="玩法说明">❓</button>
-</header>
+<!-- ===== Note Bubble ===== -->
+<div class="note-bubble" id="noteBubble"></div>
 
-<div class="app-container">
+<!-- ===== Main App ===== -->
+<div class="app-root">
+  <header>
+    <h1>♪ 音乐钢琴 ♪</h1>
+    <button class="help-btn" onclick="showTutorial()" title="玩法说明">❓</button>
+  </header>
+
   <!-- Song Selector -->
   <div class="song-panel" id="songPanel"></div>
 
-  <!-- Sheet Music Display -->
-  <div class="sheet-display">
-    <div class="sheet-header">
-      <span class="sheet-title" id="sheetTitle">请选择一首曲子</span>
-      <span class="sheet-info" id="sheetInfo"></span>
-    </div>
-    <div class="staff-container" id="staffContainer">
-      <div class="staff" id="staff">
-        <div class="staff-line"></div>
-        <div class="staff-line"></div>
-        <div class="staff-line"></div>
-        <div class="staff-line"></div>
-        <div class="staff-line"></div>
+  <!-- Main Content Area -->
+  <div class="main-area" id="mainArea">
+    <div class="left-col" id="leftCol">
+      <!-- Sheet Music -->
+      <div class="sheet-display">
+        <div class="sheet-header">
+          <span class="sheet-title" id="sheetTitle">请选择一首曲子</span>
+          <span class="sheet-info" id="sheetInfo"></span>
+        </div>
+        <div class="staff-container" id="staffContainer">
+          <div class="staff" id="staff">
+            <div class="staff-line"></div><div class="staff-line"></div><div class="staff-line"></div><div class="staff-line"></div><div class="staff-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Now Playing -->
+      <div class="now-playing" id="nowPlaying">
+        <span class="now-note" id="nowNote">-</span>
+        <div>
+          <div class="now-lyric" id="nowLyric"></div>
+          <div class="now-freq" id="nowFreq"></div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="ctrl-btn" id="btnStop" title="停止">⏹</button>
+        <button class="ctrl-btn play-btn" id="btnPlay" title="播放/暂停">▶</button>
+        <button class="ctrl-btn" id="btnLoop" title="循环">🔁</button>
+        <div class="tempo-control">
+          <span>速度</span>
+          <input type="range" class="tempo-slider" id="tempoSlider" min="40" max="200" value="120">
+          <span class="tempo-val" id="tempoVal">120</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Now Playing -->
-  <div class="now-playing" id="nowPlaying">
-    <span class="now-note" id="nowNote">-</span>
-    <div>
-      <div class="now-lyric" id="nowLyric"></div>
-      <div class="now-freq" id="nowFreq"></div>
+    <div class="right-col" id="rightCol">
+      <!-- Piano Keyboard -->
+      <div class="piano-wrapper">
+        <div class="piano" id="piano"></div>
+      </div>
     </div>
-  </div>
-
-  <!-- Progress -->
-  <div class="progress-bar" id="progressBar">
-    <div class="progress-fill" id="progressFill"></div>
-  </div>
-
-  <!-- Controls -->
-  <div class="controls">
-    <button class="ctrl-btn" id="btnStop" title="停止">⏹</button>
-    <button class="ctrl-btn play-btn" id="btnPlay" title="播放/暂停">▶</button>
-    <button class="ctrl-btn" id="btnLoop" title="循环">🔁</button>
-    <div class="tempo-control">
-      <span>速度</span>
-      <input type="range" class="tempo-slider" id="tempoSlider" min="40" max="200" value="120">
-      <span class="tempo-val" id="tempoVal">120</span>
-    </div>
-  </div>
-
-  <!-- Piano Keyboard -->
-  <div class="piano-wrapper">
-    <div class="piano" id="piano"></div>
   </div>
 </div>
 
@@ -533,16 +491,9 @@
 // Audio Engine
 // ==========================================
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
-let masterGain = null;
-
+let audioCtx = null, masterGain = null;
 function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new AudioCtx();
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.5;
-    masterGain.connect(audioCtx.destination);
-  }
+  if (!audioCtx) { audioCtx = new AudioCtx(); masterGain = audioCtx.createGain(); masterGain.gain.value = 0.5; masterGain.connect(audioCtx.destination); }
   if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
@@ -555,43 +506,11 @@ const NOTE_FREQ = {
   'G#5':830.61,'A5':880.00,'A#5':932.33,'B5':987.77,'C6':1046.50
 };
 
-function playNote(noteName, duration) {
-  initAudio();
-  const freq = NOTE_FREQ[noteName];
-  if (!freq) return;
-  const dur = duration || 0.4;
-  const now = audioCtx.currentTime;
-  const noteGain = audioCtx.createGain();
-  const harmonics = [1, 2, 3, 4, 5];
-  const amplitudes = [1, 0.5, 0.25, 0.125, 0.06];
-  const types = ['triangle', 'sine', 'sine', 'sine', 'sine'];
-
-  harmonics.forEach((h, i) => {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = types[i];
-    osc.frequency.value = freq * h;
-    gain.gain.value = amplitudes[i] * 0.15;
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(amplitudes[i] * 0.15, now + 0.01);
-    gain.gain.exponentialRampToValueAtTime(amplitudes[i] * 0.08, now + 0.1);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + Math.max(0.11, dur));
-    osc.connect(gain);
-    gain.connect(noteGain);
-    osc.start(now);
-    osc.stop(now + dur + 0.05);
-  });
-
-  noteGain.connect(masterGain);
-  highlightKey(noteName);
-}
-
 // ==========================================
-// Song Data
+// Song Data (20+ songs)
 // ==========================================
 const SONGS = [
-  {
-    id: 'twinkle', name: '小星星', emoji: '⭐', difficulty: '入门', bpm: 100,
+  { id:'twinkle', name:'小星星', emoji:'⭐', difficulty:'入门', bpm:100,
     notes: [
       {n:'C4',d:1,lyric:'一'},{n:'C4',d:1,lyric:'闪'},{n:'G4',d:1,lyric:'一'},{n:'G4',d:1,lyric:'闪'},
       {n:'A4',d:1,lyric:'亮'},{n:'A4',d:1,lyric:'晶'},{n:'G4',d:2,lyric:'晶'},
@@ -605,10 +524,8 @@ const SONGS = [
       {n:'A4',d:1,lyric:'亮'},{n:'A4',d:1,lyric:'晶'},{n:'G4',d:2,lyric:'晶'},
       {n:'F4',d:1,lyric:'满'},{n:'F4',d:1,lyric:'天'},{n:'E4',d:1,lyric:'都'},{n:'E4',d:1,lyric:'是'},
       {n:'D4',d:1,lyric:'小'},{n:'D4',d:1,lyric:'星'},{n:'C4',d:2,lyric:'星'},
-    ]
-  },
-  {
-    id: 'ode', name: '欢乐颂', emoji: '🎶', difficulty: '入门', bpm: 108,
+    ]},
+  { id:'ode', name:'欢乐颂', emoji:'🎶', difficulty:'入门', bpm:108,
     notes: [
       {n:'E4',d:1,lyric:'欢'},{n:'E4',d:1,lyric:'乐'},{n:'F4',d:1,lyric:'女'},{n:'G4',d:1,lyric:'神'},
       {n:'G4',d:1,lyric:'圣'},{n:'F4',d:1,lyric:'洁'},{n:'E4',d:1,lyric:'美'},{n:'D4',d:1,lyric:'丽'},
@@ -622,14 +539,8 @@ const SONGS = [
       {n:'D4',d:1,lyric:'热'},{n:'E4',d:0.5,lyric:'情'},{n:'F4',d:0.5,lyric:'来'},{n:'E4',d:1,lyric:'到'},
       {n:'C4',d:1,lyric:'这'},{n:'D4',d:1,lyric:'乐'},{n:'E4',d:0.5,lyric:'园'},{n:'F4',d:0.5,lyric:'中'},
       {n:'E4',d:1,lyric:'欢'},{n:'D4',d:1,lyric:'乐'},
-      {n:'D4',d:1,lyric:'我'},{n:'D4',d:1,lyric:'们'},{n:'E4',d:1,lyric:'充'},{n:'C4',d:1,lyric:'满'},
-      {n:'D4',d:1,lyric:'热'},{n:'E4',d:0.5,lyric:'情'},{n:'F4',d:0.5,lyric:'来'},{n:'E4',d:1,lyric:'到'},
-      {n:'C4',d:1,lyric:'这'},{n:'D4',d:1,lyric:'乐'},{n:'E4',d:0.5,lyric:'园'},{n:'F4',d:0.5,lyric:'中'},
-      {n:'E4',d:1,lyric:'欢'},{n:'D4',d:1,lyric:'乐'},
-    ]
-  },
-  {
-    id: 'tigers', name: '两只老虎', emoji: '🐯', difficulty: '入门', bpm: 120,
+    ]},
+  { id:'tigers', name:'两只老虎', emoji:'🐯', difficulty:'入门', bpm:120,
     notes: [
       {n:'C4',d:1,lyric:'两'},{n:'D4',d:1,lyric:'只'},{n:'E4',d:1,lyric:'老'},{n:'C4',d:1,lyric:'虎'},
       {n:'C4',d:1,lyric:'两'},{n:'D4',d:1,lyric:'只'},{n:'E4',d:1,lyric:'老'},{n:'C4',d:1,lyric:'虎'},
@@ -641,10 +552,8 @@ const SONGS = [
       {n:'E4',d:1,lyric:'耳'},{n:'C4',d:1,lyric:'朵'},
       {n:'G4',d:0.75,lyric:'真'},{n:'A4',d:0.25,lyric:'奇'},{n:'G4',d:0.75,lyric:'怪'},{n:'F4',d:0.25,lyric:'真'},
       {n:'E4',d:1,lyric:'奇'},{n:'C4',d:1,lyric:'怪'},
-    ]
-  },
-  {
-    id: 'birthday', name: '生日快乐', emoji: '🎂', difficulty: '入门', bpm: 100,
+    ]},
+  { id:'birthday', name:'生日快乐', emoji:'🎂', difficulty:'入门', bpm:100,
     notes: [
       {n:'G3',d:0.75,lyric:'祝'},{n:'G3',d:0.25,lyric:'你'},{n:'A3',d:1,lyric:'生'},{n:'G3',d:1,lyric:'日'},
       {n:'C4',d:1,lyric:'快'},{n:'B3',d:2,lyric:'乐'},
@@ -654,10 +563,8 @@ const SONGS = [
       {n:'C4',d:1,lyric:'快'},{n:'B3',d:1,lyric:'乐'},{n:'A3',d:1,lyric:'乐'},
       {n:'F4',d:0.75,lyric:'祝'},{n:'F4',d:0.25,lyric:'你'},{n:'E4',d:1,lyric:'生'},{n:'C4',d:1,lyric:'日'},
       {n:'D4',d:1,lyric:'快'},{n:'C4',d:2,lyric:'乐'},
-    ]
-  },
-  {
-    id: 'mary', name: '玛丽有只小羊羔', emoji: '🐑', difficulty: '入门', bpm: 110,
+    ]},
+  { id:'mary', name:'玛丽小羊羔', emoji:'🐑', difficulty:'入门', bpm:110,
     notes: [
       {n:'E4',d:1,lyric:'玛'},{n:'D4',d:1,lyric:'丽'},{n:'C4',d:1,lyric:'有'},{n:'D4',d:1,lyric:'只'},
       {n:'E4',d:1,lyric:'小'},{n:'E4',d:1,lyric:'羊'},{n:'E4',d:2,lyric:'羔'},
@@ -665,10 +572,8 @@ const SONGS = [
       {n:'E4',d:1,lyric:'小'},{n:'G4',d:1,lyric:'羊'},{n:'E4',d:2,lyric:'羔'},
       {n:'E4',d:1,lyric:'玛'},{n:'D4',d:1,lyric:'丽'},{n:'C4',d:1,lyric:'有'},{n:'D4',d:1,lyric:'只'},
       {n:'E4',d:1,lyric:'小'},{n:'E4',d:1,lyric:'羊'},{n:'E4',d:1,lyric:'羊'},{n:'E4',d:1,lyric:'羔'},
-    ]
-  },
-  {
-    id: 'canon', name: '卡农', emoji: '🎻', difficulty: '中等', bpm: 80,
+    ]},
+  { id:'canon', name:'卡农', emoji:'🎻', difficulty:'中等', bpm:80,
     notes: [
       {n:'F#4',d:1},{n:'G4',d:1},{n:'A4',d:1},{n:'F#4',d:1},
       {n:'G4',d:1},{n:'A4',d:1},{n:'B4',d:1},{n:'A4',d:1},
@@ -681,10 +586,8 @@ const SONGS = [
       {n:'B4',d:1},{n:'A4',d:1},{n:'G4',d:1},{n:'F#4',d:1},
       {n:'G4',d:1},{n:'A4',d:1},{n:'B4',d:1},{n:'A4',d:1},
       {n:'F#4',d:2},{n:'E4',d:2},
-    ]
-  },
-  {
-    id: 'skylark', name: '云雀', emoji: '🐦', difficulty: '中等', bpm: 130,
+    ]},
+  { id:'skylark', name:'云雀', emoji:'🐦', difficulty:'中等', bpm:130,
     notes: [
       {n:'C5',d:0.5},{n:'D5',d:0.5},{n:'E5',d:0.5},{n:'C5',d:0.5},
       {n:'E5',d:0.5},{n:'F5',d:0.5},{n:'G5',d:1},
@@ -700,10 +603,8 @@ const SONGS = [
       {n:'E5',d:0.5},{n:'F5',d:0.5},{n:'D5',d:0.5},{n:'E5',d:0.5},
       {n:'C5',d:0.25},{n:'D5',d:0.25},{n:'C5',d:0.25},{n:'B4',d:0.25},
       {n:'A4',d:1},{n:'A4',d:1},
-    ]
-  },
-  {
-    id: 'jingle', name: '铃儿响叮当', emoji: '🔔', difficulty: '入门', bpm: 140,
+    ]},
+  { id:'jingle', name:'铃儿响叮当', emoji:'🔔', difficulty:'入门', bpm:140,
     notes: [
       {n:'E4',d:1,lyric:'叮'},{n:'E4',d:1,lyric:'当'},{n:'E4',d:2,lyric:'叮'},
       {n:'E4',d:1,lyric:'叮'},{n:'E4',d:1,lyric:'当'},{n:'E4',d:2,lyric:'叮'},
@@ -714,12 +615,104 @@ const SONGS = [
       {n:'E4',d:0.5,lyric:'叮'},{n:'E4',d:0.5,lyric:'当'},
       {n:'E4',d:1,lyric:'叮'},{n:'D4',d:1,lyric:'当'},{n:'D4',d:1,lyric:'叮'},{n:'E4',d:1,lyric:'当'},
       {n:'D4',d:2,lyric:'叮'},{n:'G4',d:2,lyric:'当'},
-    ]
-  }
+    ]},
+  { id:'bee', name:'小蜜蜂', emoji:'🐝', difficulty:'入门', bpm:120,
+    notes: [
+      {n:'G4',d:0.5},{n:'E4',d:0.5},{n:'E4',d:0.5},{n:'F4',d:0.5},{n:'D4',d:0.5},{n:'D4',d:0.5},
+      {n:'C4',d:0.5},{n:'D4',d:0.5},{n:'E4',d:0.5},{n:'F4',d:0.5},{n:'G4',d:0.5},{n:'G4',d:0.5},{n:'G4',d:1},
+      {n:'G4',d:0.5},{n:'E4',d:0.5},{n:'E4',d:0.5},{n:'F4',d:0.5},{n:'D4',d:0.5},{n:'D4',d:0.5},
+      {n:'C4',d:0.5},{n:'E4',d:0.5},{n:'G4',d:0.5},{n:'G4',d:0.5},{n:'G4',d:1},
+    ]},
+  { id:'painter', name:'粉刷匠', emoji:'🖌️', difficulty:'入门', bpm:130,
+    notes: [
+      {n:'C4',d:1,lyric:'我'},{n:'C4',d:1,lyric:'是'},{n:'C4',d:1,lyric:'一'},{n:'C4',d:1,lyric:'个'},
+      {n:'G4',d:1,lyric:'粉'},{n:'G4',d:1,lyric:'刷'},{n:'G4',d:2,lyric:'匠'},
+      {n:'G4',d:1,lyric:'粉'},{n:'G4',d:1,lyric:'刷'},{n:'G4',d:1,lyric:'本'},{n:'G4',d:1,lyric:'领'},{n:'F4',d:1,lyric:'强'},
+      {n:'F4',d:2,lyric:'强'},
+    ]},
+  { id:'newyear', name:'新年好', emoji:'🎆', difficulty:'入门', bpm:120,
+    notes: [
+      {n:'C4',d:1,lyric:'新'},{n:'C4',d:1,lyric:'年'},{n:'C4',d:1,lyric:'好'},{n:'D4',d:1,lyric:'呀'},
+      {n:'E4',d:1,lyric:'新'},{n:'E4',d:1,lyric:'年'},{n:'E4',d:1,lyric:'好'},{n:'D4',d:1,lyric:'呀'},
+      {n:'C4',d:1,lyric:'祝'},{n:'C4',d:1,lyric:'贺'},{n:'E4',d:1,lyric:'大'},{n:'G4',d:1,lyric:'家'},
+      {n:'G4',d:2,lyric:'好'},{n:'A4',d:2,lyric:'年'},
+    ]},
+  { id:'onepenny', name:'一分钱', emoji:'🪙', difficulty:'入门', bpm:110,
+    notes: [
+      {n:'C4',d:1,lyric:'我'},{n:'C4',d:1,lyric:'在'},{n:'D4',d:1,lyric:'马'},{n:'E4',d:1,lyric:'路'},{n:'D4',d:2,lyric:'边'},
+      {n:'E4',d:1,lyric:'捡'},{n:'E4',d:1,lyric:'到'},{n:'F4',d:1,lyric:'一'},{n:'G4',d:1,lyric:'分'},{n:'F4',d:2,lyric:'钱'},
+      {n:'G4',d:1,lyric:'把'},{n:'G4',d:1,lyric:'它'},{n:'A4',d:1,lyric:'交'},{n:'G4',d:1,lyric:'到'},{n:'E4',d:2,lyric:'前'},
+    ]},
+  { id:'edelweiss', name:'雪绒花', emoji:'❄️', difficulty:'入门', bpm:100,
+    notes: [
+      {n:'C4',d:1,lyric:'雪'},{n:'D4',d:1,lyric:'绒'},{n:'E4',d:1.5,lyric:'花'},{n:'C4',d:0.5,lyric:'呀'},
+      {n:'C4',d:1,lyric:'雪'},{n:'D4',d:1,lyric:'绒'},{n:'E4',d:1.5,lyric:'花'},{n:'C4',d:0.5,lyric:'呀'},
+      {n:'G4',d:1,lyric:'每'},{n:'F4',d:1,lyric:'天'},{n:'E4',d:1,lyric:'清'},{n:'D4',d:1,lyric:'晨'},{n:'C4',d:2,lyric:'迎'},
+      {n:'C4',d:1,lyric:'我'},{n:'D4',d:1,lyric:'开'},{n:'E4',d:1.5,lyric:'放'},{n:'C4',d:0.5,lyric:'呀'},
+      {n:'G4',d:1,lyric:'白'},{n:'F4',d:1,lyric:'白'},{n:'E4',d:1,lyric:'小'},{n:'D4',d:1,lyric:'花'},
+      {n:'E4',d:2,lyric:'开'},{n:'C4',d:2,lyric:'放'},
+    ]},
+  { id:'farewell', name:'送别', emoji:'🌿', difficulty:'入门', bpm:100,
+    notes: [
+      {n:'C4',d:1,lyric:'长'},{n:'C4',d:1,lyric:'亭'},{n:'D4',d:1,lyric:'外'},{n:'E4',d:1,lyric:'古'},{n:'G4',d:2,lyric:'道'},
+      {n:'G4',d:1,lyric:'边'},{n:'A4',d:1,lyric:'芳'},{n:'G4',d:1,lyric:'草'},{n:'E4',d:1,lyric:'碧'},{n:'C4',d:2,lyric:'连'},
+      {n:'D4',d:1,lyric:'天'},{n:'E4',d:1,lyric:'晚'},{n:'G4',d:1,lyric:'风'},{n:'E4',d:1,lyric:'拂'},
+      {n:'D4',d:1,lyric:'柳'},{n:'C4',d:1,lyric:'笛'},{n:'D4',d:1,lyric:'声'},{n:'E4',d:1,lyric:'残'},
+      {n:'C4',d:2,lyric:'残'},{n:'C4',d:2,lyric:'残'},
+    ]},
+  { id:'season', name:'四季歌', emoji:'🌸', difficulty:'入门', bpm:120,
+    notes: [
+      {n:'A3',d:1,lyric:'春'},{n:'C4',d:1,lyric:'季'},{n:'D4',d:1,lyric:'到'},{n:'E4',d:1,lyric:'来'},
+      {n:'E4',d:1,lyric:'绿'},{n:'D4',d:1,lyric:'满'},{n:'C4',d:1,lyric:'窗'},{n:'A3',d:1,lyric:'前'},
+      {n:'C4',d:1,lyric:'夏'},{n:'D4',d:1,lyric:'季'},{n:'E4',d:1,lyric:'到'},{n:'G4',d:1,lyric:'来'},
+      {n:'G4',d:1,lyric:'荷'},{n:'E4',d:1,lyric:'花'},{n:'D4',d:1,lyric:'满'},{n:'C4',d:1,lyric:'池'},
+      {n:'A3',d:1,lyric:'秋'},{n:'C4',d:1,lyric:'季'},{n:'D4',d:1,lyric:'到'},{n:'E4',d:1,lyric:'来'},
+      {n:'E4',d:1,lyric:'金'},{n:'D4',d:1,lyric:'菊'},{n:'C4',d:1,lyric:'开'},{n:'A3',d:1,lyric:'遍'},
+    ]},
+  { id:'hello', name:'新年好(英文)', emoji:'🎉', difficulty:'入门', bpm:120,
+    notes: [
+      {n:'C4',d:1},{n:'C4',d:1},{n:'D4',d:1},{n:'C4',d:1},{n:'F4',d:1},{n:'E4',d:2},
+      {n:'C4',d:1},{n:'C4',d:1},{n:'D4',d:1},{n:'C4',d:1},{n:'G4',d:1},{n:'F4',d:2},
+      {n:'C4',d:1},{n:'C4',d:1},{n:'C5',d:1},{n:'A4',d:1},{n:'F4',d:1},{n:'E4',d:1},{n:'D4',d:1},
+      {n:'A#4',d:1},{n:'A#4',d:1},{n:'A4',d:1},{n:'F4',d:1},{n:'G4',d:1},{n:'F4',d:2},
+    ]},
+  { id:'swan', name:'天鹅湖', emoji:'🦢', difficulty:'中等', bpm:90,
+    notes: [
+      {n:'G4',d:1},{n:'F#4',d:0.5},{n:'G4',d:0.5},{n:'B4',d:1},{n:'G4',d:1},
+      {n:'A4',d:1},{n:'G4',d:0.5},{n:'A4',d:0.5},{n:'C5',d:1},{n:'A4',d:1},
+      {n:'B4',d:1},{n:'A4',d:0.5},{n:'B4',d:0.5},{n:'D5',d:1},{n:'B4',d:1},
+      {n:'C5',d:1},{n:'B4',d:0.5},{n:'C5',d:0.5},{n:'E5',d:1},{n:'C5',d:1},
+      {n:'D5',d:1},{n:'C5',d:0.5},{n:'D5',d:0.5},{n:'F#5',d:1},{n:'D5',d:1},
+      {n:'E5',d:1},{n:'D5',d:0.5},{n:'E5',d:0.5},{n:'G5',d:1},{n:'E5',d:1},
+    ]},
+  { id:'furk', name:'致爱丽丝', emoji:'🌹', difficulty:'中等', bpm:90,
+    notes: [
+      {n:'E5',d:0.5},{n:'D#5',d:0.5},{n:'E5',d:0.5},{n:'D#5',d:0.5},{n:'E5',d:0.5},{n:'B4',d:0.5},{n:'D5',d:0.5},{n:'C5',d:0.5},
+      {n:'A4',d:1},{n:'C4',d:0.5},{n:'E4',d:0.5},{n:'A4',d:0.5},{n:'B4',d:1},
+      {n:'E4',d:0.5},{n:'G#4',d:0.5},{n:'B4',d:0.5},{n:'C5',d:1},
+      {n:'E4',d:0.5},{n:'E5',d:0.5},{n:'D#5',d:0.5},{n:'E5',d:0.5},{n:'D#5',d:0.5},{n:'E5',d:0.5},{n:'B4',d:0.5},{n:'D5',d:0.5},{n:'C5',d:0.5},
+      {n:'A4',d:1},{n:'C4',d:0.5},{n:'E4',d:0.5},{n:'A4',d:0.5},{n:'B4',d:1},
+    ]},
+  { id:'moon', name:'月光', emoji:'🌙', difficulty:'中等', bpm:70,
+    notes: [
+      {n:'C#4',d:1.5},{n:'B3',d:0.5},{n:'C#4',d:1},{n:'G#4',d:1},{n:'E4',d:2},
+      {n:'B3',d:1.5},{n:'A3',d:0.5},{n:'B3',d:1},{n:'G#4',d:1},{n:'E4',d:2},
+      {n:'A3',d:1.5},{n:'G#3',d:0.5},{n:'A3',d:1},{n:'F#4',d:1},{n:'D#4',d:2},
+      {n:'G#3',d:1.5},{n:'F#3',d:0.5},{n:'G#3',d:1},{n:'E4',d:1},{n:'C#4',d:2},
+    ]},
+  { id:'butterfly', name:'化蝶', emoji:'🦋', difficulty:'中等', bpm:100,
+    notes: [
+      {n:'E4',d:1,lyric:'碧'},{n:'G4',d:1,lyric:'草'},{n:'B4',d:1,lyric:'青'},{n:'A4',d:1,lyric:'青'},
+      {n:'G4',d:1,lyric:'花'},{n:'A4',d:1,lyric:'盛'},{n:'G4',d:2,lyric:'开'},
+      {n:'E4',d:1,lyric:'彩'},{n:'G4',d:1,lyric:'蝶'},{n:'B4',d:1,lyric:'双'},{n:'A4',d:1,lyric:'双'},
+      {n:'G4',d:1,lyric:'久'},{n:'E4',d:1,lyric:'久'},{n:'E4',d:2,lyric:'飞'},
+      {n:'B4',d:1,lyric:'千'},{n:'A4',d:1,lyric:'古'},{n:'G4',d:1,lyric:'传'},{n:'E4',d:1,lyric:'说'},
+      {n:'G4',d:1,lyric:'里'},{n:'A4',d:1,lyric:'面'},{n:'B4',d:2,lyric:'谁'},
+    ]},
 ];
 
 // ==========================================
-// Build Piano Keyboard
+// Piano Keyboard
 // ==========================================
 const pianoEl = document.getElementById('piano');
 const keyElements = {};
@@ -734,45 +727,100 @@ const BLACK_NOTES = [
 function buildPiano() {
   WHITE_NOTES.forEach((note, i) => {
     const key = document.createElement('div');
-    key.className = 'key white';
-    key.dataset.note = note;
+    key.className = 'key white'; key.dataset.note = note;
     key.innerHTML = `<span class="key-label">${note.replace(/[45]/g,'')}</span>`;
-    key.addEventListener('touchstart', (e) => { e.preventDefault(); playNote(note, 0.5); }, {passive:false});
-    key.addEventListener('mousedown', () => playNote(note, 0.5));
-    pianoEl.appendChild(key);
-    keyElements[note] = key;
+    key.addEventListener('touchstart', (e) => { e.preventDefault(); playNote(note, 0.5, true); }, {passive:false});
+    key.addEventListener('mousedown', () => playNote(note, 0.5, true));
+    pianoEl.appendChild(key); keyElements[note] = key;
   });
-
   BLACK_NOTES.forEach(({note, afterWhite}) => {
     const key = document.createElement('div');
-    key.className = 'key black';
-    key.dataset.note = note;
+    key.className = 'key black'; key.dataset.note = note;
     key.innerHTML = `<span class="key-label">${note.replace('#','').replace(/[45]/g,'')}#</span>`;
-    const whiteWidth = 36;
-    const offset = (afterWhite + 1) * whiteWidth - 11;
-    key.style.left = offset + 'px';
-    key.addEventListener('touchstart', (e) => { e.preventDefault(); playNote(note, 0.5); }, {passive:false});
-    key.addEventListener('mousedown', () => playNote(note, 0.5));
-    pianoEl.appendChild(key);
-    keyElements[note] = key;
+    const whiteWidth = 34; key.style.left = ((afterWhite + 1) * whiteWidth - 10) + 'px';
+    key.addEventListener('touchstart', (e) => { e.preventDefault(); playNote(note, 0.5, true); }, {passive:false});
+    key.addEventListener('mousedown', () => playNote(note, 0.5, true));
+    pianoEl.appendChild(key); keyElements[note] = key;
   });
 }
 
 function highlightKey(noteName) {
-  const el = keyElements[noteName];
-  if (!el) return;
-  el.classList.add('active');
-  setTimeout(() => el.classList.remove('active'), 300);
+  const el = keyElements[noteName]; if (!el) return;
+  el.classList.add('active'); setTimeout(() => el.classList.remove('active'), 300);
 }
 
 // ==========================================
-// Build Song Panel
+// Play Note (with manual play feedback)
+// ==========================================
+let manualBubbleTimer = null;
+function playNote(noteName, duration, isManual) {
+  initAudio();
+  const freq = NOTE_FREQ[noteName]; if (!freq) return;
+  const dur = duration || 0.4;
+  const now = audioCtx.currentTime;
+  const noteGain = audioCtx.createGain();
+  [1,2,3,4,5].forEach((h, i) => {
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    const amps = [0.15,0.08,0.04,0.02,0.01];
+    osc.type = i===0 ? 'triangle' : 'sine';
+    osc.frequency.value = freq * h;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(amps[i], now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(amps[i]*0.5, now + 0.1);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + Math.max(0.11, dur));
+    osc.connect(gain); gain.connect(noteGain);
+    osc.start(now); osc.stop(now + dur + 0.05);
+  });
+  noteGain.connect(masterGain);
+  highlightKey(noteName);
+
+  // Update now playing display
+  document.getElementById('nowNote').textContent = noteName;
+  document.getElementById('nowFreq').textContent = freq.toFixed(1) + ' Hz';
+  if (currentSong) {
+    const matched = currentSong.notes.findIndex(n => n.n === noteName);
+    document.getElementById('nowLyric').textContent = matched >= 0 ? currentSong.notes[matched].lyric : '';
+  } else {
+    document.getElementById('nowLyric').textContent = '';
+  }
+
+  // Highlight staff notes for manual play
+  if (isManual) highlightStaffNote(noteName);
+  // Show floating bubble for manual play
+  if (isManual) showNoteBubble(noteName);
+}
+
+// Highlight all matching notes on staff
+function highlightStaffNote(noteName) {
+  document.querySelectorAll('.note-item').forEach(el => {
+    const noteData = currentSong && currentSong.notes[parseInt(el.dataset.index || -1)];
+    if (noteData && noteData.n === noteName) {
+      el.classList.add('manual');
+      setTimeout(() => el.classList.remove('manual'), 500);
+    }
+  });
+}
+
+// Floating note bubble
+function showNoteBubble(noteName) {
+  const bubble = document.getElementById('noteBubble');
+  bubble.textContent = noteName;
+  bubble.classList.remove('fading');
+  bubble.classList.add('show');
+  clearTimeout(manualBubbleTimer);
+  manualBubbleTimer = setTimeout(() => {
+    bubble.classList.add('fading');
+    setTimeout(() => bubble.classList.remove('show', 'fading'), 300);
+  }, 400);
+}
+
+// ==========================================
+// Song Panel
 // ==========================================
 const songPanel = document.getElementById('songPanel');
 SONGS.forEach(song => {
   const card = document.createElement('div');
-  card.className = 'song-card';
-  card.dataset.id = song.id;
+  card.className = 'song-card'; card.dataset.id = song.id;
   card.innerHTML = `<span class="emoji">${song.emoji}</span><span class="name">${song.name}</span><span class="diff">${song.difficulty}</span>`;
   card.addEventListener('click', () => selectSong(song.id));
   songPanel.appendChild(card);
@@ -791,23 +839,17 @@ const NOTE_Y = {
 
 function renderStaff(song) {
   const staff = document.getElementById('staff');
-  staff.innerHTML = `
-    <div class="staff-line"></div><div class="staff-line"></div>
-    <div class="staff-line"></div><div class="staff-line"></div>
-    <div class="staff-line"></div>
-  `;
-  const noteWidth = 28;
-  const gap = 5;
-  const totalWidth = song.notes.length * (noteWidth + gap) + 16;
+  staff.innerHTML = `<div class="staff-line"></div><div class="staff-line"></div><div class="staff-line"></div><div class="staff-line"></div><div class="staff-line"></div>`;
+  const noteWidth = 24, gap = 4;
+  const totalWidth = song.notes.length * (noteWidth + gap) + 12;
   staff.style.width = totalWidth + 'px';
 
   song.notes.forEach((note, i) => {
     const el = document.createElement('div');
-    el.className = 'note-item';
-    el.dataset.index = i;
+    el.className = 'note-item'; el.dataset.index = i; el.dataset.note = note.n;
     const y = NOTE_Y[note.n] || 50;
-    el.style.left = (8 + i * (noteWidth + gap)) + 'px';
-    el.style.top = (48 - y) + 'px';
+    el.style.left = (6 + i * (noteWidth + gap)) + 'px';
+    el.style.top = (42 - y) + 'px';
     el.style.width = (noteWidth * note.d) + 'px';
     el.innerHTML = `
       <div class="note-head"></div>
@@ -815,10 +857,7 @@ function renderStaff(song) {
       <span class="note-label">${note.n.replace(/4/g,'₄').replace(/5/g,'₅').replace('#','♯')}</span>
       ${note.lyric ? `<span class="note-lyric">${note.lyric}</span>` : ''}
     `;
-    el.addEventListener('click', () => {
-      playNote(note.n, note.d * 60 / getTempo());
-      setActiveNote(i);
-    });
+    el.addEventListener('click', () => { playNote(note.n, note.d * 60 / getTempo(), true); });
     staff.appendChild(el);
   });
 }
@@ -826,20 +865,13 @@ function renderStaff(song) {
 // ==========================================
 // Playback Engine
 // ==========================================
-let currentSong = null;
-let isPlaying = false;
-let isPaused = false;
-let isLooping = false;
-let currentIndex = 0;
-let playTimeout = null;
-let pausedIndex = 0;
-
+let currentSong = null, isPlaying = false, isPaused = false, isLooping = false;
+let currentIndex = 0, playTimeout = null, pausedIndex = 0;
 function getTempo() { return parseInt(document.getElementById('tempoSlider').value); }
 
 function selectSong(songId) {
   stopPlayback();
-  currentSong = SONGS.find(s => s.id === songId);
-  if (!currentSong) return;
+  currentSong = SONGS.find(s => s.id === songId); if (!currentSong) return;
   document.querySelectorAll('.song-card').forEach(c => c.classList.remove('active'));
   document.querySelector(`.song-card[data-id="${songId}"]`).classList.add('active');
   document.getElementById('sheetTitle').textContent = currentSong.emoji + ' ' + currentSong.name;
@@ -856,21 +888,19 @@ function resetNowPlaying() {
   document.getElementById('nowLyric').textContent = '';
   document.getElementById('nowFreq').textContent = '';
   document.getElementById('progressFill').style.width = '0%';
-  document.querySelectorAll('.note-item').forEach(n => n.classList.remove('active','played'));
+  document.querySelectorAll('.note-item').forEach(n => n.classList.remove('active','played','manual'));
 }
 
 function setActiveNote(index) {
   document.querySelectorAll('.note-item').forEach((n, i) => {
-    n.classList.remove('active');
-    if (i < index) n.classList.add('played');
+    n.classList.remove('active'); if (i < index) n.classList.add('played');
   });
   const noteEl = document.querySelector(`.note-item[data-index="${index}"]`);
   if (noteEl) {
     noteEl.classList.add('active');
     const container = document.getElementById('staffContainer');
     const noteLeft = parseInt(noteEl.style.left);
-    const scrollTarget = noteLeft - container.clientWidth / 2 + 20;
-    container.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
+    container.scrollTo({ left: Math.max(0, noteLeft - container.clientWidth / 2 + 14), behavior: 'smooth' });
   }
   if (currentSong && currentSong.notes[index]) {
     const note = currentSong.notes[index];
@@ -882,8 +912,7 @@ function setActiveNote(index) {
 }
 
 function startPlayback() {
-  if (!currentSong) return;
-  initAudio();
+  if (!currentSong) return; initAudio();
   isPlaying = true; isPaused = false;
   document.getElementById('btnPlay').textContent = '⏸';
   playSequence(pausedIndex);
@@ -892,58 +921,35 @@ function startPlayback() {
 function playSequence(index) {
   if (!isPlaying || isPaused) return;
   if (index >= currentSong.notes.length) {
-    if (isLooping) {
-      index = 0;
-      document.querySelectorAll('.note-item').forEach(n => n.classList.remove('played'));
-    } else { stopPlayback(); return; }
+    if (isLooping) { index = 0; document.querySelectorAll('.note-item').forEach(n => n.classList.remove('played')); }
+    else { stopPlayback(); return; }
   }
   currentIndex = index;
   const note = currentSong.notes[index];
   const beatDuration = 60 / getTempo();
   const noteDuration = note.d * beatDuration;
-  playNote(note.n, noteDuration);
+  playNote(note.n, noteDuration, false);
   setActiveNote(index);
   playTimeout = setTimeout(() => playSequence(index + 1), noteDuration * 1000);
 }
 
-function pausePlayback() {
-  isPaused = true; pausedIndex = currentIndex;
-  clearTimeout(playTimeout);
-  document.getElementById('btnPlay').textContent = '▶';
-}
+function pausePlayback() { isPaused = true; pausedIndex = currentIndex; clearTimeout(playTimeout); document.getElementById('btnPlay').textContent = '▶'; }
+function stopPlayback() { isPlaying = false; isPaused = false; currentIndex = 0; pausedIndex = 0; clearTimeout(playTimeout); document.getElementById('btnPlay').textContent = '▶'; resetNowPlaying(); }
 
-function stopPlayback() {
-  isPlaying = false; isPaused = false;
-  currentIndex = 0; pausedIndex = 0;
-  clearTimeout(playTimeout);
-  document.getElementById('btnPlay').textContent = '▶';
-  resetNowPlaying();
-}
-
-// Controls
-document.getElementById('btnPlay').addEventListener('click', () => {
-  if (!currentSong) { selectSong(SONGS[0].id); }
-  if (isPlaying) pausePlayback(); else startPlayback();
-});
+document.getElementById('btnPlay').addEventListener('click', () => { if (!currentSong) selectSong(SONGS[0].id); if (isPlaying) pausePlayback(); else startPlayback(); });
 document.getElementById('btnStop').addEventListener('click', stopPlayback);
 document.getElementById('btnLoop').addEventListener('click', () => {
-  isLooping = !isLooping;
-  const btn = document.getElementById('btnLoop');
+  isLooping = !isLooping; const btn = document.getElementById('btnLoop');
   btn.style.background = isLooping ? 'rgba(255,107,107,0.3)' : '';
   btn.style.borderColor = isLooping ? 'var(--accent)' : '';
   showToast(isLooping ? '已开启循环播放' : '已关闭循环播放');
 });
-document.getElementById('tempoSlider').addEventListener('input', (e) => {
-  document.getElementById('tempoVal').textContent = e.target.value;
-});
+document.getElementById('tempoSlider').addEventListener('input', (e) => { document.getElementById('tempoVal').textContent = e.target.value; });
 
-// Progress bar seek
 document.getElementById('progressBar').addEventListener('click', (e) => {
   if (!currentSong) return;
-  const rect = e.currentTarget.getBoundingClientRect();
-  const ratio = (e.clientX - rect.left) / rect.width;
-  const newIndex = Math.floor(ratio * currentSong.notes.length);
-  pausedIndex = Math.max(0, Math.min(newIndex, currentSong.notes.length - 1));
+  const ratio = (e.clientX - e.currentTarget.getBoundingClientRect().left) / e.currentTarget.getBoundingClientRect().width;
+  pausedIndex = Math.max(0, Math.min(Math.floor(ratio * currentSong.notes.length), currentSong.notes.length - 1));
   setActiveNote(pausedIndex);
   if (isPlaying) { clearTimeout(playTimeout); playSequence(pausedIndex); }
 });
@@ -952,55 +958,24 @@ document.getElementById('progressBar').addEventListener('click', (e) => {
 // Tutorial System
 // ==========================================
 let tutorialStep = 0;
-const totalSteps = 6;
-
-function showTutorial() {
-  tutorialStep = 0;
-  updateTutorialUI();
-  document.getElementById('tutorialOverlay').classList.add('show');
-}
-
-function hideTutorial() {
-  document.getElementById('tutorialOverlay').classList.remove('show');
-}
-
-function nextTutorial() {
-  if (tutorialStep < totalSteps - 1) {
-    tutorialStep++;
-    updateTutorialUI();
-  }
-}
-
+function showTutorial() { tutorialStep = 0; updateTutorialUI(); document.getElementById('tutorialOverlay').classList.add('show'); }
+function hideTutorial() { document.getElementById('tutorialOverlay').classList.remove('show'); }
+function nextTutorial() { if (tutorialStep < 3) { tutorialStep++; updateTutorialUI(); } }
 function updateTutorialUI() {
-  document.querySelectorAll('.tutorial-step').forEach((el, i) => {
-    el.classList.toggle('active', i === tutorialStep);
-  });
-  document.querySelectorAll('.dot').forEach((el, i) => {
-    el.classList.toggle('active', i === tutorialStep);
-  });
+  document.querySelectorAll('.tutorial-step').forEach((el, i) => el.classList.toggle('active', i === tutorialStep));
+  document.querySelectorAll('.dot').forEach((el, i) => el.classList.toggle('active', i === tutorialStep));
 }
-
-function skipTutorial() {
-  localStorage.setItem('musicPianoTutorialSeen', 'true');
-  hideTutorial();
-}
-
-function finishTutorial() {
-  localStorage.setItem('musicPianoTutorialSeen', 'true');
-  hideTutorial();
-  showToast('祝你弹奏愉快！🎹');
-}
+function skipTutorial() { localStorage.setItem('musicPianoTutorialSeen', 'true'); hideTutorial(); }
+function finishTutorial() { localStorage.setItem('musicPianoTutorialSeen', 'true'); hideTutorial(); showToast('祝你弹奏愉快！🎹'); }
 
 // ==========================================
-// Toast Notification
+// Toast
 // ==========================================
-let toastTimeout;
+let toastTimer;
 function showToast(msg) {
   const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => toast.classList.remove('show'), 2000);
+  toast.textContent = msg; toast.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
 // ==========================================
@@ -1008,12 +983,11 @@ function showToast(msg) {
 // ==========================================
 const bgNotes = ['♪','♫','♬','♩','♭','♮','♯'];
 const bgContainer = document.getElementById('bgNotes');
-for (let i = 0; i < 16; i++) {
-  const el = document.createElement('div');
-  el.className = 'bg-note';
+for (let i = 0; i < 12; i++) {
+  const el = document.createElement('div'); el.className = 'bg-note';
   el.textContent = bgNotes[Math.floor(Math.random() * bgNotes.length)];
   el.style.left = Math.random() * 100 + '%';
-  el.style.fontSize = (14 + Math.random() * 18) + 'px';
+  el.style.fontSize = (12 + Math.random() * 16) + 'px';
   el.style.animationDuration = (8 + Math.random() * 12) + 's';
   el.style.animationDelay = (-Math.random() * 15) + 's';
   bgContainer.appendChild(el);
@@ -1022,15 +996,8 @@ for (let i = 0; i < 16; i++) {
 // ==========================================
 // Initialize
 // ==========================================
-buildPiano();
-selectSong('twinkle');
-
-// Show tutorial on first launch
-if (!localStorage.getItem('musicPianoTutorialSeen')) {
-  setTimeout(showTutorial, 500);
-}
-
-// Prevent default touch behaviors that interfere with piano
+buildPiano(); selectSong('twinkle');
+if (!localStorage.getItem('musicPianoTutorialSeen')) setTimeout(showTutorial, 500);
 pianoEl.addEventListener('touchmove', (e) => e.preventDefault(), {passive:false});
 </script>
 </body>
