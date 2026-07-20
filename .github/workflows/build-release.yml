@@ -1,0 +1,82 @@
+name: Build Release APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Add Capacitor Android platform
+        run: npx cap add android
+        continue-on-error: true
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Generate signing keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" > keystore.b64
+          base64 -d keystore.b64 > android/app/release.keystore
+
+      - name: Build Release APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease \
+            -PMYAPP_UPLOAD_STORE_FILE=release.keystore \
+            -PMYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} \
+            -PMYAPP_UPLOAD_KEY_ALIAS=${{ secrets.KEY_ALIAS }} \
+            -PMYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+
+      - name: Get version info
+        id: version
+        run: |
+          VERSION=$(date +%Y%m%d-%H%M)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0-${{ steps.version.outputs.version }}
+          name: "音乐钢琴 v1.0.0 (${{ steps.version.outputs.version }})"
+          body: |
+            ## 🎹 音乐钢琴 - Android Release APK
+
+            **构建时间**: ${{ steps.version.outputs.version }}
+
+            ### 功能
+            - 钢琴弹奏（两个八度）
+            - 8 首内置曲谱（小星星、欢乐颂、两只老虎等）
+            - 五线谱实时显示
+            - 自动演奏 + 播放控制
+            - 新手引导教程
+
+            ### 安装方法
+            下载 `music-piano-release.apk` 传到手机，开启「允许安装未知来源应用」后安装。
+          files: |
+            android/app/build/outputs/apk/release/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
