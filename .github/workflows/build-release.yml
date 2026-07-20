@@ -33,56 +33,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Configure signing and fix build.gradle
-        run: |
-          # Generate keystore
-          echo "${{ secrets.KEYSTORE_BASE64 }}" > android/app/release.keystore
+      - name: Generate signing keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" > android/app/release.keystore
 
-          # Patch app/build.gradle to add release signing config
-          BUILD_FILE="android/app/build.gradle"
-          python3 << 'PY'
-          import re
-          with open("android/app/build.gradle", "r") as f:
-              content = f.read()
-
-          signing_block = """
-      signingConfigs {
-          release {
-              storeFile file('release.keystore')
-              storePassword System.getenv("STORE_PASSWORD") ?: ""
-              keyAlias System.getenv("KEY_ALIAS") ?: ""
-              keyPassword System.getenv("KEY_PASSWORD") ?: ""
-          }
-      }
-          """
-
-          # Insert signingConfigs after defaultConfig block
-          content = content.replace(
-              "        }\n    }",
-              "        }\n" + signing_block + "    }",
-              1
-          )
-
-          # Add signingConfig to release buildType
-          content = content.replace(
-              "            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'\n        }",
-              "            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'\n            signingConfig signingConfigs.release\n        }"
-          )
-
-          with open("android/app/build.gradle", "w") as f:
-              f.write(content)
-
-          print("build.gradle patched successfully")
-          PY
+      - name: Patch build.gradle for release signing
+        run: python3 scripts/patch-build.py
 
       - name: Build Release APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease \
-            -PSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} \
-            -PKEY_ALIAS=${{ secrets.KEY_ALIAS }} \
-            -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          ./gradlew assembleRelease
         env:
           STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -93,9 +54,7 @@ jobs:
 
       - name: Get version info
         id: version
-        run: |
-          VERSION=$(date +%Y%m%d-%H%M)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        run: echo "version=$(date +%Y%m%d-%H%M)" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
