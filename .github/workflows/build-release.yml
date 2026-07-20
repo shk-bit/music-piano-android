@@ -34,7 +34,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Generate signing keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" > android/app/release.keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
 
       - name: Patch build.gradle for release signing
         run: python3 scripts/patch-build.py
